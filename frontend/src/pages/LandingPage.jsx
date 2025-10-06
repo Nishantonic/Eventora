@@ -9,7 +9,6 @@ import { Award, Zap, ShieldCheck } from "lucide-react"; // New icons for feature
 
 const bgImages = [
   "https://images.unsplash.com/photo-1522199710521-72d69614c702?fit=crop&w=1920&q=80",
-  "https://images.unsplash.com/photo-1517457210744-74c10a454f78?fit=crop&w=1920&q=80",
   "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?fit=crop&w=1920&q=80",
   "https://media.sciencephoto.com/f0/32/90/55/f0329055-800px-wm.jpg",
   "https://media.istockphoto.com/id/499517325/photo/a-man-speaking-at-a-business-conference.jpg?s=612x612&w=0&k=20&c=gWTTDs_Hl6AEGOunoQ2LsjrcTJkknf9G8BGqsywyEtE=",
