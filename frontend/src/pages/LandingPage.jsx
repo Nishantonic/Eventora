@@ -6,7 +6,7 @@ import Countdown from "../components/Countdown";
 import axios from "axios";
 import EventCard from "../components/EventCard";
 import { Award, Zap, ShieldCheck } from "lucide-react"; // New icons for features
-
+import api from "../utils/api";
 const bgImages = [
   "https://images.unsplash.com/photo-1522199710521-72d69614c702?fit=crop&w=1920&q=80",
   "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?fit=crop&w=1920&q=80",
@@ -125,7 +125,7 @@ const LandingPage = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-const res = axios.get(`${BASE_URL}/api/events`);
+const res = await api.get(`/api/events`);
         const upcomingEvents = res.data
           .filter((e) => new Date(e.date) >= new Date())
           .slice(0, 3);
