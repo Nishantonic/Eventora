@@ -125,7 +125,7 @@ const LandingPage = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await axios.get("/api/events");
+const res = axios.get(`${BASE_URL}/api/events`);
         const upcomingEvents = res.data
           .filter((e) => new Date(e.date) >= new Date())
           .slice(0, 3);
