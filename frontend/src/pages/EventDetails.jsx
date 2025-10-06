@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import L from 'leaflet'; 
 import 'leaflet/dist/leaflet.css';
 import { Calendar, MapPin, Tag, Users, Clock, Loader, Ticket } from 'lucide-react'; 
-
+import api from "../utils/api";
 const mapContainerStyle = { height: "400px", width: "100%" };
 const centerDefault = { lat: 28.6139, lng: 77.209 }; 
 
@@ -28,13 +28,13 @@ const EventDetails = () => {
         const fetchEvent = async () => {
             setLoading(true);
             try {
-                const res = await axios.get(`/api/events/${id}`);
+                const res = await api.get(`/api/events/${id}`);
                 setEvent(res.data);
                 setAvailableSeats(res.data.total_seats - (res.data.bookingsCount || 0)); 
                 
                 if (res.data.location) {
                     try {
-                        const geoRes = await axios.get(
+                        const geoRes = await api.get(
                             `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(res.data.location)}`
                         ); 
                         if (geoRes.data && geoRes.data.length > 0) {

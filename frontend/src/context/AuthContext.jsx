@@ -2,7 +2,7 @@
 import React, { createContext, useState, useEffect } from "react";
 import {jwtDecode} from "jwt-decode"; 
 import axios from "axios";
-
+import api from "../utils/api";
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const res = await axios.post("/api/users/login", { email, password });
+      const res = await api.post("/api/users/login", { email, password });
       localStorage.setItem("token", res.data.token);
 
       // Use available fields safely (role might not exist)
@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (name, email, password) => {
     try {
-      const res = await axios.post("/api/users/register", { name, email, password });
+      const res = await api.post("/api/users/register", { name, email, password });
       localStorage.setItem("token", res.data.token);
 
       setUser({

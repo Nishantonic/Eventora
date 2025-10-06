@@ -7,7 +7,7 @@ import axios from 'axios';
 import { Download, CheckCircle, Ticket, Loader } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-
+import api from '../utils/api';
 const Success = () => {
   const { bookingId } = useParams();
   const location = useLocation();
@@ -37,7 +37,7 @@ const Success = () => {
 
       try {
         const config = { headers: { Authorization: `Bearer ${token}` } };
-        const res = await axios.get(`/api/bookings/${bookingId}`, config); 
+        const res = await api.get(`/api/bookings/${bookingId}`, config); 
         setBookingDetails(res.data);
       } catch (err) {
         console.error("Error fetching booking details:", err);

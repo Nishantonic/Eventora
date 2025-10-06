@@ -1,6 +1,7 @@
 // src/pages/AdminDashboard.jsx
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
+import api from "../utils/api";
 import { AuthContext } from "../context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { PlusCircle, Edit2, Trash2 } from "lucide-react";
@@ -24,7 +25,7 @@ const AdminDashboard = () => {
     if (user?.role !== "admin") return;
     const fetchEvents = async () => {
       const config = { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } };
-      const res = await axios.get("/api/events", config);
+      const res = await api.get("/api/events", config);
       setEvents(res.data);
     };
     fetchEvents();
@@ -48,8 +49,8 @@ const AdminDashboard = () => {
     };
 
     try {
-      if (editing) await axios.put(`/api/events/${editing}`, eventData, config);
-      else await axios.post("/api/events", eventData, config);
+      if (editing) await api.put(`/api/events/${editing}`, eventData, config);
+      else await api.post("/api/events", eventData, config);
 
       setForm({
         title: "",
@@ -63,7 +64,7 @@ const AdminDashboard = () => {
       });
       setEditing(null);
 
-      const res = await axios.get("/api/events", config);
+      const res = await api.get("/api/events", config);
       setEvents(res.data);
     } catch (err) {
       console.error(err);
@@ -87,8 +88,8 @@ const AdminDashboard = () => {
   const handleDelete = async (id) => {
     const config = { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } };
     try {
-      await axios.delete(`/api/events/${id}`, config);
-      const res = await axios.get("/api/events", config);
+      await api.delete(`/api/events/${id}`, config);
+      const res = await api.get("/api/events", config);
       setEvents(res.data);
     } catch (err) {
       console.error(err);

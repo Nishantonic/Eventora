@@ -3,6 +3,7 @@ import React, { useState, useContext, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import axios from 'axios';
+import api from '../utils/api';
 import { motion } from 'framer-motion';
 import { User, LogOut, Ticket, Download } from 'lucide-react';
 
@@ -21,7 +22,7 @@ const Header = () => {
         try {
           const token = localStorage.getItem("token");
           if (!token) throw new Error("No token found");
-          const res = await axios.get('/api/users/me', {
+          const res = await api.get('/api/users/me', {
             headers: { Authorization: `Bearer ${token}` },
           });
           setRole(res.data.role);

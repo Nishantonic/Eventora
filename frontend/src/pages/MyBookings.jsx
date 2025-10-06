@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { AuthContext } from "../context/AuthContext";
 import { Ticket, Calendar, Users, Loader, Download } from "lucide-react";
 import { Link } from "react-router-dom";
-
+import api from "../utils/api";
 const MyBookings = () => {
   const { user } = useContext(AuthContext);
   const [bookings, setBookings] = useState([]);
@@ -19,7 +19,7 @@ const MyBookings = () => {
         if (!token) throw new Error("Not authenticated");
 
         const config = { headers: { Authorization: `Bearer ${token}` } };
-        const res = await axios.get("/api/bookings/my", config);
+        const res = await api.get("/api/bookings/my", config);
         setBookings(res.data);
       } catch (err) {
         console.error(err);

@@ -5,7 +5,7 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import { AuthContext } from '../context/AuthContext';
 import { Ticket, Users, Tag, Phone, Loader } from 'lucide-react';
-
+import api from '../utils/api';
 const Booking = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -21,7 +21,7 @@ const Booking = () => {
   useEffect(() => {
     const fetchEvent = async () => {
       try {
-        const res = await axios.get(`/api/events/${id}`);
+        const res = await api.get(`/api/events/${id}`);
         setEvent(res.data);
       } catch (err) {
         console.error(err);
@@ -41,7 +41,7 @@ const Booking = () => {
       const config = {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       };
-      const res = await axios.post(
+      const res = await api.post(
         '/api/bookings',
         { event_id: parseInt(id), quantity: parseInt(quantity), mobile },
         config

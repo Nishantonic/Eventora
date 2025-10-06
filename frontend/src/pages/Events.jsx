@@ -1,13 +1,11 @@
-// src/pages/Events.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import EventCard from "../components/EventCard";
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-import 'react-tabs/style/react-tabs.css'; // Minimal default styling for tabs
-import { Lock, CreditCard, ArrowRight, TrendingUp, Calendar, Zap, MessageCircle } from "lucide-react";
+import 'react-tabs/style/react-tabs.css'; 
+import api from "../utils/api";
 
-// Framer Motion variants
 const eventGridVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -26,7 +24,7 @@ const EventPage = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await axios.get('/api/events');
+        const res = await api.get('/api/events');
         setEvents(res.data);
       } catch (err) {
         console.error("Error fetching events:", err);
