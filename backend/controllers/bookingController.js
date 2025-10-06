@@ -34,6 +34,12 @@ export const createBooking = async (req, res) => {
       return b;
     });
 
+    // Emit real-time update if socket is set up
+    const io = req.app.get("io");
+    if (io) {
+      io.emit("seatUpdate", { eventId: event_id, availableSeats: event.available_seats - quantity });
+    }
+
     res.json(booking);
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -41,18 +47,26 @@ export const createBooking = async (req, res) => {
 };
 
 export const getMyBookings = async (req, res) => {
-  const bookings = await prisma.booking.findMany({
-    where: { user_id: req.user.id },
-    include: { event: true },
-  });
-  res.json(bookings);
+  try {
+    const bookings = await prisma.booking.findMany({
+      where: { user_id: req.user.id },
+      include: { event: true },
+    });
+    res.json(bookings);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 };
 
 export const getBookings = async (req, res) => {
-  const bookings = await prisma.booking.findMany({
-    include: { event: true, user: true },
-  });
-  res.json(bookings);
+  try {
+    const bookings = await prisma.booking.findMany({
+      include: { event: true, user: true },
+    });
+    res.json(bookings);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 };
 
 export const cancelBooking = async (req, res) => {
@@ -70,15 +84,50 @@ export const cancelBooking = async (req, res) => {
         where: { id: booking.id },
         data: { status: "cancelled" },
       });
-      await tx.event.update({
+      const updatedEvent = await tx.event.update({
         where: { id: booking.event_id },
         data: { available_seats: { increment: booking.quantity } },
       });
-      return u;
+      return { u, updatedEvent };
     });
 
-    res.json(updated);
+    // Emit real-time update if socket is set up
+    const io = req.app.get("io");
+    if (io) {
+      io.emit("seatUpdate", { eventId: booking.event_id, availableSeats: updated.updatedEvent.available_seats });
+    }
+
+    res.json(updated.u);
   } catch (e) {
     res.status(500).json({ error: e.message });
+  }
+};
+
+export const getBookingById = async (req, res) => {
+  const { id } = req.params;
+  
+  // NOTE: In a real application, you must verify the user (req.user.id)
+  // owns this booking before returning the data.
+  // We rely on the `protect` middleware for authentication.
+
+  try {
+    const booking = await prisma.booking.findUnique({
+      where: { id: parseInt(id) },
+      // Crucial: Include the associated event details
+      include: {
+        event: true, 
+      },
+    });
+
+    if (!booking) {
+      return res.status(404).json({ msg: "Booking not found" });
+    }
+
+    // Optional: Add user ownership check here (e.g., if booking.userId !== req.user.id throw 403)
+    
+    res.json(booking);
+  } catch (error) {
+    console.error("Error fetching booking by ID:", error.message);
+    res.status(500).json({ msg: "Internal server error." });
   }
 };

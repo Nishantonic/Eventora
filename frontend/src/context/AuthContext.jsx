@@ -1,43 +1,72 @@
-// src/context/AuthContext.js
-import React, { createContext, useState, useEffect } from 'react';
-import axios from 'axios';
-import { jwtDecode } from "jwt-decode";
 
+import React, { createContext, useState, useEffect } from "react";
+import {jwtDecode} from "jwt-decode"; 
+import axios from "axios";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      const decoded = jwtDecode(token);
-      setUser({ id: decoded.id, role: decoded.role });
+    const token = localStorage.getItem("token");
+
+    if (token && token.split(".").length === 3) {
+      try {
+        const decoded = jwtDecode(token);
+        setUser(decoded); 
+      } catch (error) {
+        console.error("JWT Decode Error:", error);
+        localStorage.removeItem("token");
+        setUser(null);
+      }
+    } else {
+      if (token) console.warn("Invalid token format:", token);
+      localStorage.removeItem("token");
+      setUser(null);
     }
-    setLoading(false);
   }, []);
 
   const login = async (email, password) => {
-    const res = await axios.post('/api/users/login', { email, password });
-    localStorage.setItem('token', res.data.token);
-    setUser({ id: res.data.user.id, role: res.data.user.role });
+    try {
+      const res = await axios.post("/api/users/login", { email, password });
+      localStorage.setItem("token", res.data.token);
+
+      // Use available fields safely (role might not exist)
+      setUser({
+        id: res.data.user.id,
+        role: res.data.user.role || "user",
+        email: res.data.user.email,
+      });
+    } catch (error) {
+      console.error("Login failed:", error);
+      throw error;
+    }
   };
 
   const register = async (name, email, password) => {
-    const res = await axios.post('/api/users/register', { name, email, password });
-    localStorage.setItem('token', res.data.token);
-    setUser({ id: res.data.id, role: res.data.role });
+    try {
+      const res = await axios.post("/api/users/register", { name, email, password });
+      localStorage.setItem("token", res.data.token);
+
+      setUser({
+        id: res.data.user.id,
+        role: res.data.user.role || "user",
+        email: res.data.user.email,
+      });
+    } catch (error) {
+      console.error("Registration failed:", error);
+      throw error;
+    }
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
+    localStorage.removeItem("token");
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, register, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

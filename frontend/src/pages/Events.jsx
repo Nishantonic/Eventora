@@ -1,140 +1,130 @@
-// src/pages/LandingPage.jsx
-import React from "react";
-import { Parallax } from "react-parallax";
-import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
-import Countdown from "../components/Countdown";
+// src/pages/Events.jsx
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { motion, AnimatePresence } from "framer-motion";
+import EventCard from "../components/EventCard";
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
+import 'react-tabs/style/react-tabs.css'; // Minimal default styling for tabs
+import { Lock, CreditCard, ArrowRight, TrendingUp, Calendar, Zap, MessageCircle } from "lucide-react";
 
-const bgImage =
-  "https://images.unsplash.com/photo-1522199710521-72d69614c702?fit=crop&w=1920&q=80"; // 🎨 replace with your background
+// Framer Motion variants
+const eventGridVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05,
+    },
+  },
+};
 
-const LandingPage = () => {
+const EventPage = () => {
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const res = await axios.get('/api/events');
+        setEvents(res.data);
+      } catch (err) {
+        console.error("Error fetching events:", err);
+        setError("Failed to load events. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEvents();
+  }, []);
+
+  const now = new Date();
+  const upcomingEvents = events.filter(e => new Date(e.date) >= now);
+  const pastEvents = events.filter(e => new Date(e.date) < now).sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort past events by date descending
+
+  if (loading) return <div className="text-center py-20 text-xl text-white bg-black min-h-screen">Loading Events...</div>;
+  if (error) return <div className="text-center py-20 text-xl text-red-500 bg-black min-h-screen">{error}</div>;
+
   return (
-    <div className="bg-black text-white min-h-screen font-sans">
-      {/* Hero Section */}
-      <Parallax bgImage={bgImage} strength={400}>
-        <div className="bg-gradient-to-b from-purple-900/70 via-purple-800/80 to-black/90 min-h-screen flex flex-col justify-center items-center text-center px-6">
-          <motion.h1
-            initial={{ opacity: 0, y: -40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1 }}
-            className="text-4xl md:text-6xl font-extrabold leading-tight"
-          >
-            Transform the Way You Experience Events
-          </motion.h1>
+    <div className="bg-black text-white min-h-screen font-sans p-6 md:p-12">
+      <motion.h1
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        className="text-5xl font-extrabold text-center mb-12 text-purple-400"
+      >
+        All Events
+      </motion.h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 1 }}
-            className="text-lg md:text-xl mt-4 text-gray-200 max-w-2xl"
+   
+      {/* Events Tabs */}
+      <Tabs className="max-w-7xl mx-auto">
+        <TabList className="flex border-b border-gray-700 mb-8">
+          <Tab
+            className="p-3 cursor-pointer text-xl font-semibold transition duration-300 hover:text-purple-400"
+            selectedClassName="border-b-4 border-purple-400 text-purple-400"
           >
-            Discover, Book, and Join unforgettable moments — all in one place.
-          </motion.p>
+            Upcoming Events ({upcomingEvents.length})
+          </Tab>
+          <Tab
+            className="p-3 cursor-pointer text-xl font-semibold transition duration-300 hover:text-purple-400 ml-6"
+            selectedClassName="border-b-4 border-purple-400 text-purple-400"
+          >
+            Past Event Highlights ({pastEvents.length})
+          </Tab>
+        </TabList>
 
+        <TabPanel>
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1 }}
-            className="mt-8 flex flex-col sm:flex-row gap-4"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
+            variants={eventGridVariants}
+            initial="hidden"
+            animate="visible"
           >
-            <Link
-              to="/events"
-              className="bg-yellow-400 text-purple-900 font-bold px-6 py-3 rounded-full hover:bg-yellow-300 transition"
-            >
-              Browse Events
-            </Link>
-            <Link
-              to="/register"
-              className="bg-transparent border-2 border-yellow-400 text-yellow-400 px-6 py-3 rounded-full hover:bg-yellow-400 hover:text-purple-900 transition"
-            >
-              Join Us
-            </Link>
+            <AnimatePresence>
+              {upcomingEvents.length > 0 ? (
+                upcomingEvents.map(event => (
+                  <motion.div key={event.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                    <EventCard event={event} />
+                  </motion.div>
+                ))
+              ) : (
+                <div className="col-span-full text-center py-10 text-gray-400 text-lg">
+                  No upcoming events right now. Stay tuned for new announcements!
+                </div>
+              )}
+            </AnimatePresence>
           </motion.div>
-        </div>
-      </Parallax>
+        </TabPanel>
 
-      {/* Featured Speakers */}
-      <section className="py-16 bg-gradient-to-b from-black to-purple-950 px-6">
-        <motion.h2
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-          className="text-3xl md:text-4xl font-bold text-center mb-12 text-yellow-400"
-        >
-          Featured Speakers
-        </motion.h2>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 max-w-6xl mx-auto">
-          {[
-            { name: "Alex Carter", role: "Head of Design" },
-            { name: "Maria Lopez", role: "CTO" },
-            { name: "John Smith", role: "Marketing Guru" },
-            { name: "Nina Kim", role: "Innovator" },
-          ].map((spk, i) => (
-            <motion.div
-              key={i}
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 300 }}
-              className="bg-yellow-400/90 text-purple-900 p-6 rounded-2xl shadow-lg text-center"
-            >
-              <img
-                src={`https://randomuser.me/api/portraits/${
-                  i % 2 === 0 ? "men" : "women"
-                }/${i + 30}.jpg`}
-                alt={spk.name}
-                className="w-28 h-28 object-cover rounded-full mx-auto mb-4 border-4 border-purple-900"
-              />
-              <h3 className="font-bold text-lg">{spk.name}</h3>
-              <p className="text-sm opacity-80">{spk.role}</p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* About Section */}
-      <section className="py-16 bg-black text-center px-6">
-        <motion.h2
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-          className="text-3xl md:text-4xl font-bold text-yellow-400"
-        >
-          About Smart Event Booking
-        </motion.h2>
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="max-w-3xl mx-auto mt-6 text-gray-300"
-        >
-          We are redefining the way you discover, plan, and enjoy events. Our
-          platform brings you curated experiences, exclusive speakers, and
-          seamless ticketing — all with a touch of innovation and creativity.
-        </motion.p>
-
-        <div className="mt-10 flex justify-center">
-          <Countdown targetDate="2025-08-13" />
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1 }}
-          className="mt-8"
-        >
-          <Link
-            to="/tickets"
-            className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-full font-semibold transition"
+        <TabPanel>
+          <motion.div
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
+            variants={eventGridVariants}
+            initial="hidden"
+            animate="visible"
           >
-            Buy Ticket
-          </Link>
-        </motion.div>
-      </section>
+            <AnimatePresence>
+              {pastEvents.length > 0 ? (
+                pastEvents.map(event => (
+                  <motion.div key={event.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                    <EventCard event={{ ...event, isPast: true }} />
+                  </motion.div>
+                ))
+              ) : (
+                <div className="col-span-full text-center py-10 text-gray-400 text-lg">
+                  No past events to highlight yet.
+                </div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        </TabPanel>
+      </Tabs>
+
+        
+
     </div>
   );
 };
 
-export default LandingPage;
+export default EventPage;

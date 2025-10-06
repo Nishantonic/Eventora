@@ -54,3 +54,37 @@ export const deleteEvent = async (req, res) => {
   await prisma.event.delete({ where: { id: parseInt(req.params.id) } });
   res.json({ msg: "Event deleted" });
 };
+
+
+export const getAllEvents = async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10; // Default to 10 events per page
+  const skip = (page - 1) * limit;
+
+  try {
+    const events = await prisma.event.findMany({
+      skip: skip,
+      take: limit,
+      select: {
+        id: true,
+        title: true,
+        date: true,
+        location: true,
+        price: true,
+        imgUrl: true, 
+        available_seats: true,
+        total_seats: true,
+      }
+    });
+
+    const totalEvents = await prisma.event.count(); 
+
+    res.json({
+      events,
+      totalPages: Math.ceil(totalEvents / limit),
+      currentPage: page,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch events." });
+  }
+};

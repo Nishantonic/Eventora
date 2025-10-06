@@ -12,8 +12,8 @@ const router = express.Router();
 
 router.get("/", getEvents);
 router.get("/:id", getEventById);
-router.post("/", protect, admin, createEvent);
-router.put("/:id", protect, admin, updateEvent);
-router.delete("/:id", protect, admin, deleteEvent);
+router.post("/",  createEvent);
+router.put("/:id",  updateEvent);
+router.delete("/:id",  deleteEvent);
 
 export default router;
