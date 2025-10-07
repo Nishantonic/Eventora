@@ -1,10 +1,8 @@
-// src/pages/Booking.jsx
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { AuthContext } from '../context/AuthContext';
-// Added icons for clarity: Check, X, Ban
 import { Ticket, Users, Tag, Phone, Loader, Check, X, Ban, Minus, Plus } from 'lucide-react'; 
 import api from '../utils/api';
 
@@ -25,7 +23,6 @@ const Booking = () => {
       try {
         const res = await api.get(`/api/events/${id}`);
         setEvent(res.data);
-        // Ensure quantity is not greater than available seats on load
         if (res.data.available_seats < quantity) {
              setQuantity(res.data.available_seats > 0 ? 1 : 0);
         }
@@ -41,7 +38,6 @@ const Booking = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Re-validate against current state before submitting
     if (quantity < 1 || quantity > event.available_seats) {
          setError('Invalid quantity selected.');
          return;
@@ -75,7 +71,6 @@ const Booking = () => {
   };
 
   const decrementQuantity = () => {
-    // Correct logic: Prevents quantity from going below 1 (for tickets)
     setQuantity((prev) => Math.max(prev - 1, 1));
   };
 
@@ -94,7 +89,6 @@ const Booking = () => {
     setQuantity(newQuantity);
   };
 
-  // 🔹 Loading State
   if (loading) {
     return (
       <div className="bg-black text-white flex flex-col items-center justify-center min-h-screen py-20">
@@ -117,12 +111,10 @@ const Booking = () => {
     );
   }
   
-  // Handle case where event loads but has no seats
   const isSoldOut = event.available_seats <= 0;
 
   return (
     <div className="min-h-screen grid grid-cols-1 md:grid-cols-2 bg-purple-950 text-white">
-      {/* Left Section: Booking Details and Form */}
       <motion.div
         className="flex flex-col justify-center p-8 md:p-12 lg:p-16"
         initial={{ opacity: 0, x: -50 }}
@@ -130,13 +122,11 @@ const Booking = () => {
         transition={{ duration: 0.5 }}
       >
         <div className="max-w-md mx-auto w-full">
-          {/* Event Title */}
           <h1 className="text-4xl font-extrabold mb-4 text-center text-yellow-400">
             Book Your Tickets
           </h1>
           <p className="text-center text-xl font-semibold mb-8 text-gray-200">{event.title}</p>
 
-          {/* Event Summary */}
           <div className="grid grid-cols-2 gap-4 mb-8">
             <div className="flex flex-col items-center bg-gray-800 rounded-xl p-4 shadow-md">
               <Tag className="w-6 h-6 text-yellow-400 mb-2" />
@@ -152,9 +142,7 @@ const Booking = () => {
             </div>
           </div>
 
-          {/* Booking Form */}
           <form onSubmit={handleSubmit} className="space-y-6 bg-gray-900 p-6 rounded-2xl shadow-xl border border-purple-600/40">
-            {/* Quantity Field with Availability Info */}
             <div>
               <label htmlFor="quantity-input" className="block mb-2 font-semibold text-gray-200">
                 Quantity
@@ -166,7 +154,7 @@ const Booking = () => {
                   onClick={decrementQuantity}
                   aria-label="Decrease quantity"
                   className="px-3 py-3 text-white hover:bg-gray-700 rounded-l-lg disabled:bg-gray-900 disabled:opacity-50 transition duration-150"
-                  disabled={quantity <= 1 || isSoldOut} // Disabled if at min (1) or sold out
+                  disabled={quantity <= 1 || isSoldOut} 
                 >
                   <Minus className="w-5 h-5" />
                 </button>
@@ -174,14 +162,13 @@ const Booking = () => {
                   id="quantity-input"
                   type="number"
                   step="1"
-                  value={quantity === 0 ? '' : quantity} // Show empty when temporarily 0 for better UX during editing
+                  value={quantity === 0 ? '' : quantity} 
                   onChange={handleQuantityChange}
                   onBlur={handleQuantityBlur}
                   placeholder='1'
                   min={1}
                   max={event.available_seats}
-                  disabled={isSoldOut} // Disabled if sold out
-                  // 🚩 FIX: Improved input UI with better focus and consistent background
+                  disabled={isSoldOut} 
                   className="flex-1 p-3 bg-gray-900 text-center focus:outline-none focus:ring-2 focus:ring-yellow-400 text-white border-x border-gray-700 font-semibold text-lg"
                   required
                 />
@@ -190,12 +177,11 @@ const Booking = () => {
                   onClick={incrementQuantity}
                   aria-label="Increase quantity"
                   className="px-3 py-3 text-white hover:bg-gray-700 rounded-r-lg disabled:bg-gray-900 disabled:opacity-50 transition duration-150"
-                  disabled={quantity >= event.available_seats || isSoldOut} // Disabled if at max or sold out
+                  disabled={quantity >= event.available_seats || isSoldOut} 
                 >
                   <Plus className="w-5 h-5" />
                 </button>
               </div>
-              {/* Added feedback when max quantity is selected */}
               {quantity === event.available_seats && !isSoldOut && (
                 <p className="flex items-center gap-1 text-xs text-yellow-400 mt-2"><Check className='w-4 h-4'/> Maximum available seats selected.</p>
               )}
@@ -207,23 +193,21 @@ const Booking = () => {
               )}
             </div>
 
-            {/* Mobile Field with better type/placeholder */}
             <div>
               <label className="block mb-2 font-semibold text-gray-200">Mobile (optional)</label>
               <div className="flex items-center bg-gray-800 border border-gray-700 rounded-lg focus-within:ring-2 focus-within:ring-purple-500 transition duration-150">
                 <Phone className="w-5 h-5 text-gray-400 ml-3" />
                 <input
-                  type="tel" // Changed to 'tel' for better mobile keyboard
+                  type="tel" 
                   value={mobile}
                   onChange={(e) => setMobile(e.target.value)}
-                  placeholder="e.g., 9876543210 (10 digits)" // Added a clear placeholder
+                  placeholder="e.g., 9876543210 (10 digits)" 
                   className="flex-1 p-3 bg-transparent focus:outline-none text-white"
                   disabled={isSoldOut}
                 />
               </div>
             </div>
 
-            {/* Total */}
             <div className="flex justify-between text-lg font-medium border-t border-gray-700 pt-4">
               <span>Total:</span>
               <span className="text-yellow-400">
@@ -231,7 +215,6 @@ const Booking = () => {
               </span>
             </div>
 
-            {/* Button */}
             <button
               type="submit"
               disabled={submitting || quantity > event.available_seats || quantity < 1 || isSoldOut}
@@ -254,7 +237,6 @@ const Booking = () => {
         </div>
       </motion.div>
 
-      {/* Right Section: Event Image */}
       <motion.div
         className="hidden md:block relative overflow-hidden"
         initial={{ opacity: 0, x: 50 }}
@@ -266,7 +248,7 @@ const Booking = () => {
           alt={event.title}
           className="object-fit w-full h-full min-h-screen"
         />
-        <div className="absolute inset-0 bg-gradient-to-l from-transparent to-black opacity-50"></div> {/* Gradient overlay for better contrast */}
+        <div className="absolute inset-0 bg-gradient-to-l from-transparent to-black opacity-50"></div> 
       </motion.div>
     </div>
   );

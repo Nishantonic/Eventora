@@ -1,16 +1,12 @@
-// src/pages/AdminDashboard.jsx
 import React, { useState, useEffect, useContext, useCallback } from "react";
 import api from "../utils/api";
 import { AuthContext } from "../context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { PlusCircle, Edit2, Trash2, Users, ListCollapse, X, Loader } from "lucide-react";
 
-// Helper function for input styling
 const inputClass = "input w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-colors";
 
-// --------------------------------------------------------------------------------
-// 1. Component for Event Creation/Editing Form
-// --------------------------------------------------------------------------------
+
 const EventForm = ({ form, handleChange, handleSubmit, setEditing, editing, isSubmitting }) => (
     <motion.form
         onSubmit={handleSubmit}
@@ -70,9 +66,7 @@ const EventForm = ({ form, handleChange, handleSubmit, setEditing, editing, isSu
     </motion.form>
 );
 
-// --------------------------------------------------------------------------------
-// 2. Component for All Events Management (Cards)
-// --------------------------------------------------------------------------------
+
 const ManageEvents = ({ events, handleEdit, handleDelete }) => (
     <motion.div
         initial={{ opacity: 0, x: 50 }}
@@ -144,9 +138,7 @@ const ManageEvents = ({ events, handleEdit, handleDelete }) => (
     </motion.div>
 );
 
-// --------------------------------------------------------------------------------
-// 3. Component for User Management (Placeholder)
-// --------------------------------------------------------------------------------
+
 const UserManagement = () => (
     <motion.div
         initial={{ opacity: 0, x: 50 }}
@@ -167,12 +159,8 @@ const UserManagement = () => (
 );
 
 
-// --------------------------------------------------------------------------------
-// Main AdminDashboard Component
-// --------------------------------------------------------------------------------
 const AdminDashboard = () => {
-    // 💥 FIX: Ensure setUser is included in the destructuring from useContext.
-    // This resolves the "setUser is not a function" error.
+    
     const { user, setUser } = useContext(AuthContext); 
     
     const [events, setEvents] = useState([]);
@@ -190,14 +178,12 @@ const AdminDashboard = () => {
         total_seats: 0, price: 0, img: "", category: "",
     };
 
-    // Helper to get configuration with token for protected routes
     const getConfig = useCallback(() => {
         const token = localStorage.getItem("token");
         if (!token) return null;
         return { headers: { Authorization: `Bearer ${token}` } };
     }, []);
 
-    // Dedicated function to fetch user data and role (Resolves 401 issue)
     const fetchCurrentUser = useCallback(async () => {
         const config = getConfig();
         if (!config) {
@@ -207,7 +193,6 @@ const AdminDashboard = () => {
 
         try {
             const res = await api.get("/api/users/me", config); 
-            // 💥 This call now works because setUser is available
             setUser(res.data);
             return res.data;
         } catch (error) {
@@ -220,7 +205,6 @@ const AdminDashboard = () => {
         }
     }, [getConfig, setUser]);
     
-    // Function to fetch events
     const fetchEvents = useCallback(async (userOverride) => {
         const userToUse = userOverride || user;
 
@@ -238,7 +222,6 @@ const AdminDashboard = () => {
     }, [getConfig, user]);
 
 
-    // Main Effect to run authentication check and data fetching
     useEffect(() => {
         const loadData = async () => {
             const fetchedUser = await fetchCurrentUser(); 
@@ -331,9 +314,7 @@ const AdminDashboard = () => {
         }
     };
 
-    // --------------------------------------------------------------------------------
-    // ACCESS CHECKS AND LOADING SCREEN
-    // --------------------------------------------------------------------------------
+
     if (loadingUser) {
         return (
              <div className="min-h-screen flex flex-col items-center justify-center text-white bg-black/80">
@@ -368,7 +349,6 @@ const AdminDashboard = () => {
                 Admin Panel
             </motion.h1>
 
-            {/* Tab Navigation */}
             <div className="max-w-6xl mx-auto mb-8 border-b border-white/20">
                 <div className="flex justify-center flex-wrap">
                     <button onClick={() => setActiveTab("create")} className={tabClasses("create")}>
@@ -383,7 +363,6 @@ const AdminDashboard = () => {
                 </div>
             </div>
 
-            {/* Tab Content */}
             <AnimatePresence mode="wait">
                 {activeTab === "create" && (
                     <EventForm 

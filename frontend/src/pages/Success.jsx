@@ -166,7 +166,7 @@ const Success = () => {
       <motion.button
         onClick={handleDownloadPDF}
         disabled={pdfLoading}
-        className={`w-full max-w-xl mx-auto block mt-8 py-3 rounded-lg font-bold text-lg transition duration-300 flex items-center justify-center gap-2 shadow-lg ${
+        className={`w-full max-w-xl mx-auto  mt-8 py-3 rounded-lg font-bold text-lg transition duration-300 flex items-center justify-center gap-2 shadow-lg ${
           pdfLoading
             ? "bg-gray-600 text-gray-300 cursor-not-allowed"
             : "bg-purple-600 hover:bg-purple-500 text-white"
