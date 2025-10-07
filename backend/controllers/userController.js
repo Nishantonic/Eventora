@@ -63,20 +63,30 @@ export const getUser = async (req, res) => {
 };
 
 
-export const getUserById = async (req, res) => {
+// src/controllers/userController.js (or wherever your controllers are)
+
+// The Authentication middleware must run BEFORE this function
+// and set req.user.id
+export const getMe = async (req, res) => {
   try {
-    const userId = req.params.id;
+    // 💥 FIX: Get ID from the token/middleware (req.user.id)
+    const userId = req.user.id; 
 
+    // Find the user using the ID from the token
     const user = await User.findById(userId).select('-password');
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    
+    if (!user) {
+      // Should rarely happen if token is valid, but good to check
+      return res.status(404).json({ message: 'User not found' });
+    }
 
+    // Send back the user's data
     res.status(200).json(user);
   } catch (err) {
-    console.error('Error fetching user by ID:', err);
+    console.error('Error fetching current user:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
-
 
 
 

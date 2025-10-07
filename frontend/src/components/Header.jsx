@@ -58,8 +58,8 @@ const Header = () => {
   };
 
   return (
-    <nav className="bg-purple-900 text-white p-4 shadow-lg sticky top-0 z-20">
-      <div className="container mx-auto flex justify-between items-center">
+    <nav className="relative bg-purple-900 h-auto text-white p-2 shadow-lg sticky top-0 z-[100]">
+      <div className="container mx-auto flex justify-between h-auto items-center">
         <Link to="/" className="text-2xl font-extrabold tracking-wider">Eventora</Link>
 
         {/* Hamburger menu (mobile) */}
@@ -67,7 +67,7 @@ const Header = () => {
           className="md:hidden p-2 rounded-md hover:bg-purple-800 transition"
           onClick={() => setIsOpen(!isOpen)}
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-6 h-fit" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
@@ -96,7 +96,7 @@ const Header = () => {
                   onClick={() => setProfileOpen(!profileOpen)}
                   className="flex items-center gap-2 px-3 py-1 bg-purple-700 rounded-full hover:bg-purple-600 transition"
                 >
-                  <User className="w-5 h-5" />
+                  <User  />
                   <span className="hidden md:inline">Hello, {name}</span>
                 </button>
 
@@ -151,7 +151,7 @@ const Header = () => {
         initial={false}
         animate={isOpen ? "open" : "closed"}
         variants={menuVariants}
-        className="md:hidden flex flex-col space-y-3 mt-4 overflow-hidden bg-purple-800 rounded-lg p-3"
+        className="absolute left-0 w-full md:hidden flex flex-col space-y-3 top-full bg-purple-800 rounded-b-lg p-3 shadow-lg"
       >
         <Link to="/events" className="hover:text-purple-300 transition">Events</Link>
         {user ? (

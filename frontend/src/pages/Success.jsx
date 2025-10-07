@@ -111,7 +111,7 @@ const Success = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-purple-900/80 to-black text-white py-12 px-4 font-sans relative overflow-hidden">
       
-      <Confetti recycle={true} numberOfPieces={300}  />
+      <Confetti   />
 
       <motion.div
         ref={ticketRef}
