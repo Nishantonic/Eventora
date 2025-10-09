@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Parallax } from "react-parallax";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import Countdown from "../components/Countdown";
-import axios from "axios";
 import EventCard from "../components/EventCard";
 import { Award, Zap, ShieldCheck } from "lucide-react"; // New icons for features
 import api from "../utils/api";
+
 const bgImages = [
   "https://images.unsplash.com/photo-1522199710521-72d69614c702?fit=crop&w=1920&q=80",
   "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?fit=crop&w=1920&q=80",
@@ -100,7 +98,8 @@ const SpeakerTicker = () => (
             <img
               src={speaker.img}
               alt={speaker.name}
-              className="w-24 h-24 rounded-full mx-auto mb-3 object-cover border-4 border-purple-500 hover:border-yellow-400 transition"
+              className="w-24 h-24 rounded-full mx-auto mb-3 object-cover border-4 border-purple-500 hover:border-yellow-400 transition lazyload"
+              loading="lazy"
             />
             <h3 className="text-lg font-semibold text-white">{speaker.name}</h3>
             <p className="text-sm text-purple-300">{speaker.role}</p>
@@ -111,27 +110,47 @@ const SpeakerTicker = () => (
   </div>
 );
 
+const EventSkeleton = () => (
+  <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg animate-pulse">
+    <div className="h-48 bg-gray-700" />
+    <div className="p-4">
+      <div className="h-6 bg-gray-700 rounded w-3/4 mb-2" />
+      <div className="h-4 bg-gray-700 rounded w-1/2 mb-4" />
+      <div className="h-4 bg-gray-700 rounded w-full mb-2" />
+      <div className="h-4 bg-gray-700 rounded w-2/3" />
+    </div>
+  </div>
+);
+
 const LandingPage = () => {
   const [events, setEvents] = useState([]);
-
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImageIndex((prevIndex) => (prevIndex + 1) % bgImages.length);
     }, 4000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
     const fetchEvents = async () => {
+      setIsLoading(true);
+      setError(null);
       try {
-const res = await api.get(`/api/events`);
+        const res = await api.get(`/api/events`);
         const upcomingEvents = res.data
           .filter((e) => new Date(e.date) >= new Date())
+          .sort((a, b) => new Date(a.date) - new Date(b.date))
           .slice(0, 3);
         setEvents(upcomingEvents);
       } catch (err) {
         console.error(err);
+        setError("Failed to load events. Please try again later.");
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchEvents();
@@ -228,7 +247,17 @@ const res = await api.get(`/api/events`);
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
         >
-          {events.length > 0 ? (
+          {isLoading ? (
+            <>
+              <EventSkeleton />
+              <EventSkeleton />
+              <EventSkeleton />
+            </>
+          ) : error ? (
+            <div className="md:col-span-3 text-center text-red-400">
+              {error}
+            </div>
+          ) : events.length > 0 ? (
             events.map((event) => (
               <motion.div key={event.id} variants={itemVariants}>
                 <EventCard event={event} />
@@ -289,7 +318,32 @@ const res = await api.get(`/api/events`);
         </motion.div>
       </section>
 
-      <section className="py-16 bg-purple-900/20 text-center px-6"></section>
+      <section className="py-16 bg-purple-900/20 text-center px-6">
+        <h2 className="text-3xl font-bold text-white mb-4">Stay Updated</h2>
+        <p className="text-gray-300 mb-8">Subscribe to our newsletter for the latest events and offers.</p>
+        <form className="max-w-md mx-auto flex">
+          <input
+            type="email"
+            placeholder="Enter your email"
+            className="flex-grow px-4 py-3 bg-gray-800 border border-purple-800 rounded-l-full text-white placeholder-gray-400 focus:outline-none"
+          />
+          <button
+            type="submit"
+            className="px-6 py-3 bg-yellow-400 text-gray-900 font-bold rounded-r-full hover:bg-yellow-300 transition"
+          >
+            Subscribe
+          </button>
+        </form>
+      </section>
+
+      <footer className="py-8 bg-gray-900 text-center text-gray-400">
+        <p>&copy; {new Date().getFullYear()} Event Booking Platform. All rights reserved.</p>
+        <div className="mt-4">
+          <Link to="/privacy" className="mx-2 hover:text-purple-400">Privacy Policy</Link>
+          <Link to="/terms" className="mx-2 hover:text-purple-400">Terms of Service</Link>
+          <Link to="/contact" className="mx-2 hover:text-purple-400">Contact Us</Link>
+        </div>
+      </footer>
     </div>
   );
 };

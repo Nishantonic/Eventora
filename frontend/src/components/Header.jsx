@@ -97,7 +97,7 @@ const Header = () => {
                   className="flex items-center gap-2 px-3 py-1 bg-purple-700 rounded-full hover:bg-purple-600 transition"
                 >
                   <User  />
-                  <span className="hidden md:inline">Hello, {name}</span>
+                  <span className="hidden md:inline"> {name}</span>
                 </button>
 
                 {profileOpen && (
