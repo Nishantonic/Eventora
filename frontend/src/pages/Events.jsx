@@ -1,20 +1,33 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import EventCard from "../components/EventCard";
-import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-import 'react-tabs/style/react-tabs.css'; 
+import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
+import "react-tabs/style/react-tabs.css";
 import api from "../utils/api";
 
 const eventGridVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: {
-      staggerChildren: 0.05,
-    },
+    transition: { staggerChildren: 0.05 },
   },
 };
+
+// ✨ Purple Loading Spinner
+const LoadingSpinner = () => (
+  <div className="flex flex-col items-center justify-center min-h-screen bg-black text-purple-400">
+    <motion.div
+      className="w-20 h-20 border-4 border-purple-500 border-t-transparent rounded-full"
+      animate={{ rotate: 360 }}
+      transition={{
+        repeat: Infinity,
+        duration: 1,
+        ease: "linear",
+      }}
+    />
+    <p className="mt-6 text-xl tracking-wide">Loading Events...</p>
+  </div>
+);
 
 const EventPage = () => {
   const [events, setEvents] = useState([]);
@@ -24,7 +37,7 @@ const EventPage = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await api.get('/api/events');
+        const res = await api.get("/api/events");
         setEvents(res.data);
       } catch (err) {
         console.error("Error fetching events:", err);
@@ -37,11 +50,18 @@ const EventPage = () => {
   }, []);
 
   const now = new Date();
-  const upcomingEvents = events.filter(e => new Date(e.date) >= now);
-  const pastEvents = events.filter(e => new Date(e.date) < now).sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort past events by date descending
+  const upcomingEvents = events.filter((e) => new Date(e.date) >= now);
+  const pastEvents = events
+    .filter((e) => new Date(e.date) < now)
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
 
-  if (loading) return <div className="text-center py-20 text-xl text-white bg-black min-h-screen">Loading Events...</div>;
-  if (error) return <div className="text-center py-20 text-xl text-red-500 bg-black min-h-screen">{error}</div>;
+  if (loading) return <LoadingSpinner />;
+  if (error)
+    return (
+      <div className="text-center py-20 text-xl text-red-500 bg-black min-h-screen">
+        {error}
+      </div>
+    );
 
   return (
     <div className="bg-black text-white min-h-screen font-sans p-6 md:p-12">
@@ -54,7 +74,6 @@ const EventPage = () => {
         All Events
       </motion.h1>
 
-   
       {/* Events Tabs */}
       <Tabs className="max-w-7xl mx-auto">
         <TabList className="flex border-b border-gray-700 mb-8">
@@ -72,6 +91,7 @@ const EventPage = () => {
           </Tab>
         </TabList>
 
+        {/* Upcoming Events */}
         <TabPanel>
           <motion.div
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
@@ -81,8 +101,14 @@ const EventPage = () => {
           >
             <AnimatePresence>
               {upcomingEvents.length > 0 ? (
-                upcomingEvents.map(event => (
-                  <motion.div key={event.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                upcomingEvents.map((event) => (
+                  <motion.div
+                    key={event.id}
+                    layout
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                  >
                     <EventCard event={event} />
                   </motion.div>
                 ))
@@ -95,6 +121,7 @@ const EventPage = () => {
           </motion.div>
         </TabPanel>
 
+        {/* Past Events */}
         <TabPanel>
           <motion.div
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
@@ -104,8 +131,14 @@ const EventPage = () => {
           >
             <AnimatePresence>
               {pastEvents.length > 0 ? (
-                pastEvents.map(event => (
-                  <motion.div key={event.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                pastEvents.map((event) => (
+                  <motion.div
+                    key={event.id}
+                    layout
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                  >
                     <EventCard event={{ ...event, isPast: true }} />
                   </motion.div>
                 ))
@@ -118,9 +151,6 @@ const EventPage = () => {
           </motion.div>
         </TabPanel>
       </Tabs>
-
-        
-
     </div>
   );
 };

@@ -58,7 +58,7 @@ const Header = () => {
   };
 
   return (
-    <nav className="relative bg-purple-900 h-auto text-white p-2 shadow-lg sticky top-0 z-[100]">
+    <nav className=" bg-purple-900 h-auto text-white p-2 shadow-lg sticky top-0 z-[100]">
       <div className="container mx-auto flex justify-between h-auto items-center">
         <Link to="/" className="text-2xl font-extrabold tracking-wider">Eventora</Link>
 
