@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import api from "../utils/api";
 import {
-  Calendar,
+  CalendarDays,
   Clock,
   MapPin,
   Tag,
@@ -16,7 +16,7 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
 const FALLBACK_IMAGE =
-  "https://images.unsplash.com/photo-1540130635574-855734898144?fit=crop&w=1920&q=80";
+  "https://images.unsplash.com/photo-1493225455756-0021d5e3833d?auto=format&fit=crop&w=800&q=80";
 const centerDefault = { lat: 28.6139, lng: 77.209 };
 
 const EventDetails = () => {
@@ -27,10 +27,6 @@ const EventDetails = () => {
   const [center, setCenter] = useState(centerDefault);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // Parallax scroll hook
-  const { scrollY } = useScroll();
-  const yOffset = useTransform(scrollY, [0, 300], [0, -100]);
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -67,15 +63,15 @@ const EventDetails = () => {
 
   if (loading)
     return (
-      <div className="min-h-screen bg-black flex flex-col justify-center items-center text-white">
+      <div className="min-h-screen bg-white flex flex-col justify-center items-center text-gray-900">
         <Loader className="w-10 h-10 animate-spin text-purple-500" />
-        <p className="mt-3 text-gray-400">Loading Event Details...</p>
+        <p className="mt-3 text-gray-600">Loading Event Details...</p>
       </div>
     );
 
   if (error || !event)
     return (
-      <div className="min-h-screen bg-black flex justify-center items-center text-red-500 text-lg">
+      <div className="min-h-screen bg-white flex justify-center items-center text-red-500 text-lg">
         {error || "Event not found"}
       </div>
     );
@@ -95,73 +91,90 @@ const EventDetails = () => {
     if (event.available_seats > 0) navigate(`/booking/${event.id}`);
   };
 
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+  };
+
   return (
-    <div className="bg-black text-white min-h-screen font-sans py-10 px-4 md:px-10 relative overflow-hidden">
-      {/* 🌄 Parallax Image Background */}
+    <div className="bg-white text-gray-900 min-h-screen font-sans py-10 px-4 md:px-10 relative overflow-hidden">
+      {/* 🌄 Hero Image */}
       <motion.div
-        // style={{ y: yOffset }}
-        className="absolute top-0 left-0 w-full h-full md:h-[400px] bg-cover bg-center opacity-90"
-        style={{
-          backgroundImage: `url(${event.img || FALLBACK_IMAGE})`,
-          backgroundAttachment: "fixed",
-          backgroundSize: "cover",
-        }}
-      ></motion.div>
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1, ease: "easeOut" }}
+        className="relative w-full h-96 bg-cover bg-center rounded-3xl shadow-2xl mb-10"
+       style={{
+  backgroundImage: `url(${event.img || FALLBACK_IMAGE})`,
+  backgroundSize: "cover",       // ensures the image covers the full container
+  backgroundPosition: "center",  // keeps the focus centered
+  backgroundRepeat: "no-repeat", // prevents image tiling
+}}
 
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black"></div>
+      >
+        <div className="absolute inset-0 bg-gradient-to-t from-gray-900/60 to-transparent rounded-3xl"></div>
+        <div className="absolute bottom-0 left-0 p-8">
+          <h1 className="text-5xl font-extrabold text-white mb-2">{event.title}</h1>
+          <p className="text-xl text-gray-200">{event.location} • {formattedDate}</p>
+        </div>
+      </motion.div>
 
-      <div className="relative max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 mt-20 z-10">
+      <div className="relative max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 z-10">
         {/* LEFT SIDE: Details */}
         <motion.div
-          initial={{ opacity: 0, x: -40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
-          className="bg-gray-900/80 backdrop-blur-md rounded-3xl p-6 shadow-2xl border border-purple-600 flex flex-col"
+          initial="hidden"
+          whileInView="visible"
+          variants={itemVariants}
+          viewport={{ once: true }}
+          className="bg-white rounded-3xl p-8 shadow-xl border border-gray-200 flex flex-col"
         >
-          <img
-            src={event.img || FALLBACK_IMAGE}
-            alt={event.title}
-            className="w-full h-64 object-cover rounded-2xl mb-6 shadow-md"
-          />
-
-          <h1 className="text-4xl font-extrabold bg-gradient-to-r from-purple-300 to-purple-700 bg-clip-text text-transparent">
-            {event.title}
-          </h1>
-
-          <div className="flex flex-wrap gap-4 text-gray-300 mt-4 justify-between">
+          <div className="flex flex-wrap gap-6 text-gray-600 mt-4 justify-between">
             <span className="flex items-center gap-2">
-              <Calendar className="text-purple-400 w-5 h-5" /> {formattedDate}
+              <CalendarDays className="text-purple-600 w-5 h-5" /> {formattedDate}
             </span>
             <span className="flex items-center gap-2">
-              <Clock className="text-purple-400 w-5 h-5" /> {formattedTime}
+              <Clock className="text-purple-600 w-5 h-5" /> {formattedTime}
+            </span>
+            <span className="flex items-center gap-2">
+              <MapPin className="text-purple-600 w-5 h-5" /> {event.location}
             </span>
           </div>
 
-          <div className="grid grid-cols-3 gap-4 mt-8 text-center">
-            <div className="bg-gray-800 p-4 rounded-xl">
-              <Tag className="w-6 h-6 text-yellow-400 mx-auto mb-1" />
-              <p className="text-gray-400 text-sm">Price</p>
-              <p className="font-semibold">₹{event.price}</p>
-            </div>
-            <div className="bg-gray-800 p-4 rounded-xl">
-              <Users className="w-6 h-6 text-yellow-400 mx-auto mb-1" />
-              <p className="text-gray-400 text-sm">Seats Left</p>
-              <p className="font-semibold">
+          <div className="grid grid-cols-3 gap-6 mt-10">
+            <motion.div 
+              variants={itemVariants}
+              className="bg-gray-50 p-6 rounded-2xl shadow-md text-center"
+            >
+              <Tag className="w-8 h-8 text-orange-500 mx-auto mb-2" />
+              <p className="text-gray-500 text-sm">Price</p>
+              <p className="font-semibold text-lg">₹{event.price}</p>
+            </motion.div>
+            <motion.div 
+              variants={itemVariants}
+              className="bg-gray-50 p-6 rounded-2xl shadow-md text-center"
+            >
+              <Users className="w-8 h-8 text-orange-500 mx-auto mb-2" />
+              <p className="text-gray-500 text-sm">Seats Left</p>
+              <p className="font-semibold text-lg">
                 {event.available_seats}/{event.total_seats}
               </p>
-            </div>
-            <div className="bg-gray-800 p-4 rounded-xl">
-              <MapPin className="w-6 h-6 text-yellow-400 mx-auto mb-1" />
-              <p className="text-gray-400 text-sm">Location</p>
-              <p className="font-semibold">{event.location}</p>
-            </div>
+            </motion.div>
+            <motion.div 
+              variants={itemVariants}
+              className="bg-gray-50 p-6 rounded-2xl shadow-md text-center"
+            >
+              <Ticket className="w-8 h-8 text-orange-500 mx-auto mb-2" />
+              <p className="text-gray-500 text-sm">Status</p>
+              <p className="font-semibold text-lg">
+                {event.available_seats > 0 ? "Available" : "Sold Out"}
+              </p>
+            </motion.div>
           </div>
 
-          <h2 className="text-2xl font-semibold text-purple-400 mt-8 mb-3 border-b border-gray-700 pb-2">
-            About This Event
+          <h2 className="text-3xl font-bold text-gray-800 mt-12 mb-4">
+            About This <span className="text-purple-600">Event</span>
           </h2>
-          <p className="text-gray-300 leading-relaxed mb-8 whitespace-pre-wrap">
+          <p className="text-gray-600 leading-relaxed mb-8 whitespace-pre-wrap">
             {event.description}
           </p>
 
@@ -171,10 +184,10 @@ const EventDetails = () => {
             disabled={availableSeats <= 0}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className={`py-3 px-10 rounded-full font-bold text-lg transition-all shadow-lg mx-auto mt-auto ${
+            className={`py-4 px-12 rounded-full font-bold text-lg transition-all shadow-lg mx-auto mt-auto ${
               event.available_seats > 0
-                ? "bg-gradient-to-r from-purple-500 via-purple-600 to-purple-800 hover:shadow-[0_0_20px_#a855f7] text-white"
-                : "bg-gray-700 text-gray-400 cursor-not-allowed"
+                ? "bg-purple-600 hover:bg-purple-700 text-white hover:shadow-xl"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }`}
           >
             <Ticket className="inline-block w-5 h-5 mr-2" />
@@ -184,22 +197,23 @@ const EventDetails = () => {
 
         {/* RIGHT SIDE: Map */}
         <motion.div
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
-          className="bg-gray-900/80 backdrop-blur-md rounded-3xl shadow-2xl border border-purple-600 overflow-hidden relative z-10"
+          initial="hidden"
+          whileInView="visible"
+          variants={itemVariants}
+          viewport={{ once: true }}
+          className="bg-white rounded-3xl shadow-xl border border-gray-200 overflow-hidden"
         >
-          <h3 className="text-center text-3xl font-bold text-purple-400 py-4 border-b border-gray-800">
-            Event Location
+          <h3 className="text-center text-3xl font-bold text-gray-800 py-6 border-b border-gray-200">
+            Event <span className="text-purple-600">Location</span>
           </h3>
 
-          <div className="relative z-10" style={{ height: "750px" }}>
+          <div className="relative" style={{ height: "500px" }}>
             <MapContainer
               key={`${center.lat}-${center.lng}`}
               center={[center.lat, center.lng]}
               zoom={14}
-              scrollWheelZoom={false}
-              className="z-0 rounded-3xl"
+              scrollWheelZoom={true}
+              className="z-0 rounded-b-3xl"
               style={{ height: "100%", width: "100%" }}
             >
               <TileLayer
@@ -213,7 +227,7 @@ const EventDetails = () => {
               </Marker>
             </MapContainer>
           </div>
-          <p className="text-sm text-gray-400 text-center py-3 bg-black/50 relative z-20">
+          <p className="text-sm text-gray-500 text-center py-4">
             {center.lat === centerDefault.lat
               ? "📍 Showing default location (geocoding failed)."
               : `Map showing ${event.location}`}

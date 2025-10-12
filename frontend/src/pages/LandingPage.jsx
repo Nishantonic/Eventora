@@ -1,80 +1,19 @@
-import React, { useState, useEffect, lazy, Suspense } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import React, { useEffect, useState, lazy, Suspense } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Award, Zap, ShieldCheck } from "lucide-react";
 import api from "../utils/api";
+import { CalendarDays, Users, ShieldCheck, Zap, Quote } from "lucide-react";
 
-// Lazy load EventCard
 const EventCard = lazy(() => import("../components/EventCard"));
 
-// Optimized compressed background images
-const bgImages = [
-  "https://images.unsplash.com/photo-1522199710521-72d69614c702?auto=format&fit=crop&w=1600&q=60",
-  "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=1600&q=60",
-  "https://media.istockphoto.com/id/499517325/photo/a-man-speaking-at-a-business-conference.jpg?auto=format&fit=crop&w=1600&q=60",
-  "https://images.unsplash.com/photo-1485217988980-11786ced9454?auto=format&fit=crop&w=1600&q=60",
-];
-
-// Animation variants
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-};
-
-const topSpeakers = [
-  { name: "Priya Sharma", role: "AI Ethicist", img: "https://randomuser.me/api/portraits/women/11.jpg" },
-  { name: "Rajesh Kumar", role: "Venture Capitalist", img: "https://randomuser.me/api/portraits/men/12.jpg" },
-  { name: "Anjali Menon", role: "Tech Pioneer", img: "https://randomuser.me/api/portraits/women/13.jpg" },
-  { name: "Sandeep Verma", role: "E-commerce Founder", img: "https://randomuser.me/api/portraits/men/14.jpg" },
-  { name: "Kavita Singh", role: "Climate Activist", img: "https://randomuser.me/api/portraits/women/15.jpg" },
-  { name: "Vikram Bose", role: "Space Scientist", img: "https://randomuser.me/api/portraits/men/16.jpg" },
-];
-
-const SpeakerTicker = () => (
-  <div className="overflow-hidden py-12 bg-gray-800/50 border-y border-purple-800/50">
-    <div className="text-center mb-10">
-      <h2 className="text-3xl font-bold text-yellow-400">🔥 Top Speakers</h2>
-      <p className="text-gray-400">Meet the visionaries leading the conversation.</p>
-    </div>
-    <div className="max-w-7xl mx-auto">
-      <motion.div
-        className="flex w-fit"
-        animate={{ x: "-50%" }}
-        transition={{ repeat: Infinity, ease: "linear", duration: 35 }}
-      >
-        {[...topSpeakers, ...topSpeakers].map((s, i) => (
-          <div
-            key={i}
-            className="flex-shrink-0 w-64 mx-4 p-4 bg-gray-900 rounded-xl shadow-xl text-center border border-purple-800/50 hover:scale-105 transition"
-          >
-            <img
-              src={s.img}
-              alt={s.name}
-              className="w-24 h-24 rounded-full mx-auto mb-3 object-cover border-4 border-purple-500 hover:border-yellow-400 transition"
-              loading="lazy"
-            />
-            <h3 className="text-lg font-semibold text-white">{s.name}</h3>
-            <p className="text-sm text-purple-300">{s.role}</p>
-          </div>
-        ))}
-      </motion.div>
-    </div>
-  </div>
-);
-
-const EventSkeleton = () => (
-  <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg animate-pulse">
-    <div className="h-48 bg-gray-700" />
-    <div className="p-4 space-y-3">
-      <div className="h-6 bg-gray-700 rounded w-3/4" />
-      <div className="h-4 bg-gray-700 rounded w-1/2" />
-      <div className="h-4 bg-gray-700 rounded w-full" />
-    </div>
+// 🔄 Simple animated spinner while events load
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center py-24">
+    <motion.div
+      className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full"
+      animate={{ rotate: 360 }}
+      transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+    />
   </div>
 );
 
@@ -82,38 +21,19 @@ const LandingPage = () => {
   const [events, setEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // Smooth hero background image transition
-  useEffect(() => {
-    const interval = setInterval(
-      () => setCurrentImageIndex((i) => (i + 1) % bgImages.length),
-      5000
-    );
-    return () => clearInterval(interval);
-  }, []);
-
-  // Optimized event fetching with cache
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const cached = localStorage.getItem("events");
-        if (cached) {
-          setEvents(JSON.parse(cached));
-          setIsLoading(false);
-        }
-
-        const res = await api.get("/api/events", { timeout: 5000 });
+        const res = await api.get("/api/events");
         const upcoming = res.data
           .filter((e) => new Date(e.date) >= new Date())
           .sort((a, b) => new Date(a.date) - new Date(b.date))
           .slice(0, 3);
-
         setEvents(upcoming);
-        localStorage.setItem("events", JSON.stringify(upcoming));
       } catch (err) {
         console.error(err);
-        setError("⚠️ Failed to load events. Please try again later.");
+        setError("Failed to load events. Please try again later.");
       } finally {
         setIsLoading(false);
       }
@@ -122,125 +42,161 @@ const LandingPage = () => {
   }, []);
 
   const features = [
-    { icon: Award, title: "Curated Events", description: "Hand-picked, high-quality experiences you won't find anywhere else." },
-    { icon: Zap, title: "Lightning Fast Booking", description: "Secure your spot in seconds with a smooth, optimized checkout." },
-    { icon: ShieldCheck, title: "Verified Tickets", description: "All tickets are verified for your peace of mind." },
+    {
+      icon: CalendarDays,
+      title: "Discover & Book",
+      desc: "Find the best events around you and book your seat in seconds.",
+    },
+    {
+      icon: Users,
+      title: "Connect & Network",
+      desc: "Meet professionals and enthusiasts who share your passion.",
+    },
+    {
+      icon: ShieldCheck,
+      title: "Secure Experience",
+      desc: "Verified organizers, safe payments, and reliable access.",
+    },
+    {
+      icon: Zap,
+      title: "Fast & Simple",
+      desc: "Clean design, instant booking, and easy event management.",
+    },
   ];
 
-  return (
-    <div className="bg-black text-white font-sans">
-      {/* HERO SECTION */}
-      <section className="relative h-[90vh] flex items-center justify-center overflow-hidden">
-        <AnimatePresence initial={false}>
-          <motion.div
-            key={currentImageIndex}
-            className="absolute inset-0 bg-cover bg-center transition-transform duration-1000"
-            style={{
-              backgroundImage: `url(${bgImages[currentImageIndex]})`,
-              transform: "scale(1.05)",
-            }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black" />
-          </motion.div>
-        </AnimatePresence>
+  const testimonials = [
+    {
+      quote: "Eventora made finding and booking events so easy! I love the seamless experience.",
+      author: "Jane Doe",
+      role: "Event Enthusiast",
+    },
+    {
+      quote: "As an organizer, the platform is intuitive and helps me reach more people.",
+      author: "John Smith",
+      role: "Event Organizer",
+    },
+    {
+      quote: "Secure and reliable – I've attended multiple events without any issues.",
+      author: "Alex Johnson",
+      role: "Professional Networker",
+    },
+  ];
 
-        <div className="relative z-10 text-center p-6">
-          <motion.h1
-            initial={{ opacity: 0, y: -40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-            className="text-5xl md:text-7xl font-extrabold mb-4 drop-shadow-lg"
-          >
-            Your Next Adventure Awaits
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.7 }}
-            className="text-xl md:text-2xl text-yellow-400 mb-8 max-w-2xl mx-auto"
-          >
-            Discover the best events, book effortlessly, and make memories that last.
-          </motion.p>
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.2, delayChildren: 0.3 },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+  };
+
+  return (
+    <div className="bg-white text-gray-900 font-sans overflow-hidden">
+      {/* ================= HERO SECTION ================= */}
+      <section className="container mx-auto px-6 py-20 flex flex-col md:flex-row items-center justify-between gap-12">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, ease: "easeOut" }}
+          className="flex-1 text-center md:text-left"
+        >
+          <h1 className="text-5xl md:text-6xl font-extrabold leading-tight mb-6 text-purple-700">
+            Discover, Book, and Experience <br />
+            <span className="text-orange-500">Unforgettable Events</span>
+          </h1>
+          <p className="text-xl text-gray-600 mb-8 max-w-lg mx-auto md:mx-0 leading-relaxed">
+            From concerts to conferences, find events that inspire and connect
+            you — all in one place.
+          </p>
           <Link
             to="/events"
-            className="px-8 py-4 bg-yellow-400 text-gray-900 font-bold rounded-full text-xl shadow-lg hover:bg-yellow-300 transform hover:scale-105 transition"
+            className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-8 py-3 rounded-full transition inline-block shadow-lg hover:shadow-xl"
           >
-            Find Events
+            Explore Events
           </Link>
-        </div>
-      </section>
-
-      {/* FEATURED EVENTS */}
-      <section className="py-16 bg-gray-900 px-6">
-        <motion.h2
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-          className="text-4xl font-bold text-center mb-10 text-purple-400"
-        >
-          🔥 Featured Upcoming Events
-        </motion.h2>
+        </motion.div>
 
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto"
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
+          initial={{ opacity: 0, x: 60 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 1.2, ease: "easeOut" }}
+          className="flex-1 flex justify-center"
         >
-          {isLoading ? (
-            <>
-              <EventSkeleton /> <EventSkeleton /> <EventSkeleton />
-            </>
-          ) : error ? (
-            <div className="md:col-span-3 text-center text-red-400">{error}</div>
-          ) : events.length > 0 ? (
-            events.map((event) => (
+          <img
+            src="https://img.freepik.com/premium-photo/portrait-happy-crowd-enjoying-music-festival_989072-315.jpg"
+            alt="Vibrant concert crowd enjoying a live event"
+            className="rounded-3xl shadow-2xl max-w-md w-full object-cover"
+            loading="lazy"
+          />
+        </motion.div>
+      </section>
+
+       {/* ================= UPCOMING EVENTS SECTION ================= */}
+      <section className="py-20 px-6 bg-gray-50">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl font-extrabold text-gray-800 mb-3">
+            Upcoming <span className="text-purple-600">Events</span>
+          </h2>
+          <p className="text-lg text-gray-500 leading-relaxed">
+            Don’t miss what’s happening next — book your tickets today.
+          </p>
+        </div>
+
+        {isLoading ? (
+          <LoadingSpinner />
+        ) : error ? (
+          <div className="text-center text-red-500">{error}</div>
+        ) : events.length > 0 ? (
+          <motion.div
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 max-w-6xl mx-auto"
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+          >
+            {events.map((event) => (
               <motion.div key={event.id} variants={itemVariants}>
-                <Suspense fallback={<EventSkeleton />}>
+                <Suspense fallback={<LoadingSpinner />}>
                   <EventCard event={event} />
                 </Suspense>
               </motion.div>
-            ))
-          ) : (
-            <div className="md:col-span-3 text-center text-gray-400">
-              No upcoming events right now. Check back soon!
-            </div>
-          )}
-        </motion.div>
+            ))}
+          </motion.div>
+        ) : (
+          <p className="text-center text-gray-500 text-lg">
+            No upcoming events at the moment. Check back soon!
+          </p>
+        )}
 
-        <div className="text-center mt-10">
+        <div className="text-center mt-12">
           <Link
             to="/events"
-            className="text-purple-400 hover:text-purple-300 font-semibold border-b-2 border-purple-400 pb-1 transition"
+            className="px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-full shadow-lg transition hover:shadow-xl"
           >
-            View All Events →
+            View All Events
           </Link>
         </div>
       </section>
 
-      {/* SPEAKER TICKER */}
-      <SpeakerTicker />
-
-      {/* FEATURES */}
-      <section className="py-20 bg-black px-6">
-        <motion.h2
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-          className="text-4xl md:text-5xl font-bold text-center text-yellow-400 mb-16"
-        >
-          Why Choose Us?
-        </motion.h2>
+      {/* ================= FEATURES SECTION ================= */}
+      <section className="bg-gray-50 py-20 px-6">
+        <div className="max-w-6xl mx-auto text-center mb-14">
+          <h2 className="text-4xl font-extrabold text-gray-800 mb-4">
+            Why Choose <span className="text-purple-600">Eventora</span>?
+          </h2>
+          <p className="text-lg text-gray-500 max-w-2xl mx-auto leading-relaxed">
+            We make event discovery and booking simple, fast, and secure — built
+            for organizers and attendees alike.
+          </p>
+        </div>
 
         <motion.div
-          className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
@@ -250,31 +206,71 @@ const LandingPage = () => {
             <motion.div
               key={i}
               variants={itemVariants}
-              className="p-8 bg-gray-900 rounded-xl shadow-2xl text-center hover:scale-105 transition border border-purple-800/50"
+              whileHover={{ scale: 1.05, transition: { duration: 0.3 } }}
+              className="bg-white border border-gray-200 shadow-lg rounded-2xl p-8 text-center hover:shadow-2xl transition duration-300"
             >
-              <f.icon className="w-10 h-10 text-purple-500 mx-auto mb-4" />
-              <h3 className="text-xl font-bold mb-3">{f.title}</h3>
-              <p className="text-gray-400">{f.description}</p>
+              <f.icon className="w-12 h-12 text-purple-600 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold mb-3 text-gray-800">
+                {f.title}
+              </h3>
+              <p className="text-gray-500 leading-relaxed">{f.desc}</p>
             </motion.div>
           ))}
         </motion.div>
       </section>
 
-      {/* NEWSLETTER */}
-      <section className="py-16 bg-purple-900/20 text-center px-6">
-        <h2 className="text-3xl font-bold text-white mb-4">Stay Updated</h2>
-        <p className="text-gray-300 mb-8">
-          Subscribe to our newsletter for the latest events and offers.
+      {/* ================= TESTIMONIALS SECTION ================= */}
+      <section className="py-20 px-6 bg-white">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl font-extrabold text-gray-800 mb-3">
+            What Our Users <span className="text-purple-600">Say</span>
+          </h2>
+          <p className="text-lg text-gray-500 max-w-2xl mx-auto leading-relaxed">
+            Hear from real people who love using Eventora.
+          </p>
+        </div>
+
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+        >
+          {testimonials.map((t, i) => (
+            <motion.div
+              key={i}
+              variants={itemVariants}
+              className="bg-gray-50 p-8 rounded-2xl shadow-md text-center"
+            >
+              <Quote className="w-8 h-8 text-purple-600 mx-auto mb-4" />
+              <p className="text-gray-600 mb-6 italic leading-relaxed">"{t.quote}"</p>
+              <h4 className="font-semibold text-gray-800">{t.author}</h4>
+              <p className="text-sm text-gray-500">{t.role}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+      </section>
+
+     
+
+      {/* ================= NEWSLETTER ================= */}
+      <section className="bg-gradient-to-r from-purple-600 to-orange-500 text-white py-16 text-center">
+        <h2 className="text-3xl md:text-4xl font-extrabold mb-4">
+          Stay Updated with the Latest Events
+        </h2>
+        <p className="text-lg mb-8 opacity-90 leading-relaxed">
+          Join our community and never miss an exciting moment again.
         </p>
         <form className="max-w-md mx-auto flex">
           <input
             type="email"
             placeholder="Enter your email"
-            className="flex-grow px-4 py-3 bg-gray-800 border border-purple-800 rounded-l-full text-white placeholder-gray-400 focus:outline-none"
+            className="flex-grow px-4 py-3 rounded-l-full text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white transition"
           />
           <button
             type="submit"
-            className="px-6 py-3 bg-yellow-400 text-gray-900 font-bold rounded-r-full hover:bg-yellow-300 transition"
+            className="bg-white text-purple-600 font-semibold px-6 py-3 rounded-r-full hover:bg-gray-100 transition"
           >
             Subscribe
           </button>
