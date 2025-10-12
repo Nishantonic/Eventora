@@ -8,6 +8,7 @@ import { Download, CheckCircle, Ticket, Loader } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import api from '../utils/api';
+
 const Success = () => {
   const { bookingId } = useParams();
   const location = useLocation();
@@ -84,23 +85,23 @@ const Success = () => {
 
   if (loading && !bookingDetails) {
     return (
-      <div className="bg-black text-white flex flex-col items-center justify-center min-h-screen py-20">
+      <div className="bg-white text-gray-900 flex flex-col items-center justify-center min-h-screen py-20">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
         >
           <Loader className="w-12 h-12 text-purple-500" />
         </motion.div>
-        <p className="mt-4 text-xl text-gray-400">Loading Booking Details...</p>
+        <p className="mt-4 text-xl text-gray-600">Loading Booking Details...</p>
       </div>
     );
   }
 
   if (error || !bookingDetails) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center text-white bg-gradient-to-b from-black via-purple-900/80 to-black p-4">
+      <div className="min-h-screen flex flex-col items-center justify-center text-gray-900 bg-white p-4">
         <p className="text-2xl text-red-500 mb-4">Error</p>
-        <p className="text-lg text-gray-400">{error || "Booking details not found."}</p>
+        <p className="text-lg text-gray-500">{error || "Booking details not found."}</p>
       </div>
     );
   }
@@ -109,56 +110,56 @@ const Success = () => {
   const qrValue = `BookingID:${bookingDetails.id}|Event:${bookingDetails.event.title}|Qty:${bookingDetails.quantity}`;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-purple-900/80 to-black text-white py-12 px-4 font-sans relative overflow-hidden">
+    <div className="min-h-screen bg-white text-gray-900 py-12 px-4 font-sans relative overflow-hidden">
       
-      <Confetti   />
+      <Confetti recycle={false} numberOfPieces={200} />
 
       <motion.div
         ref={ticketRef}
-        className="max-w-xl mx-auto p-8 bg-purple-900/90 rounded-2xl shadow-2xl border-t-8 border-green-500"
+        className="max-w-xl mx-auto p-8 bg-white rounded-2xl shadow-2xl border-t-8 border-green-500"
         initial={{ y: -50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
       >
         <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-        <h1 className="text-4xl font-extrabold text-center mb-3 ">
+        <h1 className="text-4xl font-extrabold text-center mb-3 text-purple-600">
           Booking Successful!
         </h1>
-        <p className="text-lg text-gray-300 text-center mb-8">
+        <p className="text-lg text-gray-500 text-center mb-8">
           Your e-ticket confirmation is ready.
         </p>
 
-        <div className="space-y-3 p-4 bg-gray-800/70 rounded-lg mb-8">
-          <h2 className="text-xl font-bold text-purple-400 flex items-center gap-2">
+        <div className="space-y-3 p-4 bg-gray-50 rounded-lg mb-8">
+          <h2 className="text-xl font-bold text-purple-600 flex items-center gap-2">
             <Ticket /> E-Ticket Details
           </h2>
-          <p className="text-sm text-gray-400">
-            <span className="font-semibold text-white">Event:</span> {bookingDetails.event.title}
+          <p className="text-sm text-gray-600">
+            <span className="font-semibold text-gray-900">Event:</span> {bookingDetails.event.title}
           </p>
-          <p className="text-sm text-gray-400">
-            <span className="font-semibold text-white">Date:</span>{" "}
+          <p className="text-sm text-gray-600">
+            <span className="font-semibold text-gray-900">Date:</span>{" "}
             {new Date(bookingDetails.event.date).toLocaleString()}
           </p>
-          <p className="text-sm text-gray-400">
-            <span className="font-semibold text-white">Tickets:</span>{" "}
+          <p className="text-sm text-gray-600">
+            <span className="font-semibold text-gray-900">Tickets:</span>{" "}
             {bookingDetails.quantity}
           </p>
-          <p className="text-lg font-bold text-green-400 border-t border-gray-600 pt-3">
+          <p className="text-lg font-bold text-green-600 border-t border-gray-200 pt-3">
             Total Paid: ₹{totalAmount.toLocaleString('en-IN')}
           </p>
         </div>
 
         <div className="text-center mb-8">
-          <p className="text-gray-300 mb-4">Scan this code for quick entry:</p>
+          <p className="text-gray-500 mb-4">Scan this code for quick entry:</p>
           <QRCodeCanvas
             value={qrValue}
             size={200}
             level="H"
-            className="mx-auto border-4 border-white rounded-lg shadow-xl"
+            className="mx-auto border-4 border-gray-200 rounded-lg shadow-xl bg-white p-2"
           />
         </div>
 
-        <p className="text-center text-lg italic text-gray-400 mt-6">
+        <p className="text-center text-lg italic text-gray-500 mt-6">
           "Thank you for choosing us! We look forward to seeing you at the event."
         </p>
       </motion.div>
@@ -166,10 +167,10 @@ const Success = () => {
       <motion.button
         onClick={handleDownloadPDF}
         disabled={pdfLoading}
-        className={`w-full max-w-xl mx-auto  mt-8 py-3 rounded-lg font-bold text-lg transition duration-300 flex items-center justify-center gap-2 shadow-lg ${
+        className={`w-full max-w-xl mx-auto mt-8 py-3 rounded-lg font-bold text-lg transition duration-300 flex items-center justify-center gap-2 shadow-lg ${
           pdfLoading
-            ? "bg-gray-600 text-gray-300 cursor-not-allowed"
-            : "bg-purple-600 hover:bg-purple-500 text-white"
+            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+            : "bg-purple-600 hover:bg-purple-700 text-white hover:shadow-xl"
         }`}
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
