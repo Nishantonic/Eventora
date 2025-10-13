@@ -97,13 +97,21 @@ const LandingPage = () => {
 
   return (
     <div className="bg-white text-gray-900 font-sans overflow-hidden">
-      {/* ================= HERO SECTION ================= */}
-      <section className="container mx-auto px-6 py-20 flex flex-col md:flex-row items-center justify-between gap-12">
+      {/* ================= IMPROVED HERO SECTION ================= */}
+      <section className="relative container mx-auto px-6 py-24 md:py-32 flex flex-col md:flex-row items-center justify-between gap-12 overflow-hidden">
+        {/* Background subtle animation for depth */}
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-r from-purple-100 to-orange-100 opacity-50"
+          initial={{ scale: 1.2, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 1.5, ease: "easeOut" }}
+        />
+
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, ease: "easeOut" }}
-          className="flex-1 text-center md:text-left"
+          className="flex-1 text-center md:text-left z-10"
         >
           <h1 className="text-5xl md:text-6xl font-extrabold leading-tight mb-6 text-purple-700">
             Discover, Book, and Experience <br />
@@ -122,21 +130,40 @@ const LandingPage = () => {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, x: 60 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 1.2, ease: "easeOut" }}
-          className="flex-1 flex justify-center"
+          initial={{ opacity: 0, x: 60, scale: 0.9 }}
+          animate={{ opacity: 1, x: 0, scale: 1 }}
+          transition={{ duration: 1.2, ease: "easeOut", delay: 0.2 }}
+          whileHover={{ scale: 1.05 }}
+          className="flex-1 flex justify-center z-10"
         >
           <img
             src="https://img.freepik.com/premium-photo/portrait-happy-crowd-enjoying-music-festival_989072-315.jpg"
             alt="Vibrant concert crowd enjoying a live event"
-            className="rounded-3xl shadow-2xl max-w-md w-full object-cover"
+            className="rounded-3xl shadow-2xl max-w-lg md:max-w-xl lg:max-w-2xl w-full object-cover transform transition-transform duration-500 hover:rotate-1"
             loading="lazy"
           />
         </motion.div>
+
+        {/* Additional particle-like animations for impressiveness */}
+        <motion.div
+          className="absolute top-0 left-0 w-32 h-32 bg-purple-400 rounded-full filter blur-3xl opacity-30"
+          animate={{
+            x: [0, 50, 0],
+            y: [0, 30, 0],
+          }}
+          transition={{ repeat: Infinity, duration: 10, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="absolute bottom-0 right-0 w-40 h-40 bg-orange-400 rounded-full filter blur-3xl opacity-30"
+          animate={{
+            x: [0, -40, 0],
+            y: [0, -20, 0],
+          }}
+          transition={{ repeat: Infinity, duration: 12, ease: "easeInOut", delay: 2 }}
+        />
       </section>
 
-       {/* ================= UPCOMING EVENTS SECTION ================= */}
+      {/* ================= UPCOMING EVENTS SECTION ================= */}
       <section className="py-20 px-6 bg-gray-50">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-extrabold text-gray-800 mb-3">
@@ -251,8 +278,6 @@ const LandingPage = () => {
           ))}
         </motion.div>
       </section>
-
-     
 
       {/* ================= NEWSLETTER ================= */}
       <section className="bg-gradient-to-r from-purple-600 to-orange-500 text-white py-16 text-center">
