@@ -44,7 +44,7 @@ const SecurityPolicy = () => {
                 </h1>
                 <p className="text-gray-400 mt-2">
                   We take the security, privacy and integrity of your data seriously.
-                  This policy explains how we collect, store, use and protect information.
+                  
                 </p>
               </div>
             </div>
