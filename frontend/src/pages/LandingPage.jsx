@@ -1,4 +1,5 @@
-import React, { useEffect, useState, lazy, Suspense } from "react";
+import React, { lazy, Suspense } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import api from "../utils/api";
@@ -18,28 +19,17 @@ const LoadingSpinner = () => (
 );
 
 const LandingPage = () => {
-  const [events, setEvents] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const res = await api.get("/api/events");
-        const upcoming = res.data
-          .filter((e) => new Date(e.date) >= new Date())
-          .sort((a, b) => new Date(a.date) - new Date(b.date))
-          .slice(0, 3);
-        setEvents(upcoming);
-      } catch (err) {
-        console.error(err);
-        setError("Failed to load events. Please try again later.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchEvents();
-  }, []);
+  // Fetch events using react-query
+  const { data: events = [], isLoading, error } = useQuery({
+    queryKey: ['upcomingEvents'],
+    queryFn: async () => {
+      const res = await api.get("/api/events?upcoming=true&limit=3&sort=date");
+      return res.data;
+    },
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    cacheTime: 10 * 60 * 1000, // Keep cache for 10 minutes
+    retry: 1, // Retry once on failure
+  });
 
   const features = [
     {
@@ -242,7 +232,7 @@ const LandingPage = () => {
         {isLoading ? (
           <LoadingSpinner />
         ) : error ? (
-          <div className="text-center text-red-500 text-base sm:text-lg">{error}</div>
+          <div className="text-center text-red-500 text-base sm:text-lg">{error.message}</div>
         ) : events.length > 0 ? (
           <motion.div
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-10 max-w-6xl mx-auto"
