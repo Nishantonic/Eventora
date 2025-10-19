@@ -28,62 +28,78 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-purple-900/80 to-black flex items-center justify-center px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] px-4">
       <motion.div
-        className="bg-gray-900/90 backdrop-blur-md p-8 rounded-2xl shadow-2xl max-w-md w-full text-white border border-purple-600/40"
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.5 }}
+        className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl shadow-2xl max-w-md w-full p-8 text-white"
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
       >
-        <h1 className="text-3xl font-extrabold mb-6 text-center text-yellow-400">
-          Welcome Back
-        </h1>
-        <p className="text-center text-gray-400 mb-8">
-          Please login to continue
+        <motion.h1
+          className="text-4xl font-extrabold text-center bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-4"
+          initial={{ scale: 0.9 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          Welcome Back 👋
+        </motion.h1>
+        <p className="text-center text-gray-300 mb-8">
+          Log in to continue your journey with <span className="text-purple-300 font-semibold">Eventora</span>.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Email Field */}
           <div>
-            <label className="block mb-2 font-semibold">Email</label>
-            <div className="flex items-center bg-gray-800 border border-gray-700 rounded-lg">
-              <Mail className="w-5 h-5 text-gray-400 ml-3" />
+            <label className="block mb-2 font-medium text-gray-300">
+              Email Address
+            </label>
+            <div className="flex items-center bg-white/5 border border-white/20 rounded-xl focus-within:border-purple-400 transition">
+              <Mail className="w-5 h-5 text-purple-300 ml-3" />
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                placeholder="Enter your email"
-                className="flex-1 p-3 bg-transparent focus:outline-none text-white"
+                placeholder="you@example.com"
+                className="flex-1 p-3 bg-transparent text-white placeholder-gray-400 focus:outline-none"
               />
             </div>
           </div>
 
+          {/* Password Field */}
           <div>
-            <label className="block mb-2 font-semibold">Password</label>
-            <div className="flex items-center bg-gray-800 border border-gray-700 rounded-lg">
-              <Lock className="w-5 h-5 text-gray-400 ml-3" />
+            <label className="block mb-2 font-medium text-gray-300">
+              Password
+            </label>
+            <div className="flex items-center bg-white/5 border border-white/20 rounded-xl focus-within:border-pink-400 transition">
+              <Lock className="w-5 h-5 text-pink-300 ml-3" />
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                placeholder="Enter your password"
-                className="flex-1 p-3 bg-transparent focus:outline-none text-white"
+                placeholder="••••••••"
+                className="flex-1 p-3 bg-transparent text-white placeholder-gray-400 focus:outline-none"
               />
             </div>
           </div>
 
+          {/* Error */}
           {error && (
-            <p className="text-red-400 text-center font-medium">{error}</p>
+            <p className="text-red-400 text-center text-sm font-medium mt-2">
+              {error}
+            </p>
           )}
 
-          <button
+          {/* Submit Button */}
+          <motion.button
             type="submit"
             disabled={submitting}
-            className={`w-full py-3 rounded-lg font-bold transition flex items-center justify-center gap-2 ${
+            whileTap={{ scale: 0.97 }}
+            className={`w-full py-3 rounded-xl font-semibold transition flex items-center justify-center gap-2 ${
               submitting
                 ? "bg-gray-600 text-gray-300 cursor-not-allowed"
-                : "bg-purple-600 hover:bg-purple-500 text-white"
+                : "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-pink-500 hover:to-purple-500 text-white shadow-lg"
             }`}
           >
             {submitting ? (
@@ -93,14 +109,15 @@ const Login = () => {
             ) : (
               "Login"
             )}
-          </button>
+          </motion.button>
         </form>
 
+        {/* Footer */}
         <p className="text-center text-gray-400 mt-6">
           Don’t have an account?{" "}
           <Link
             to="/register"
-            className="text-yellow-400 font-semibold hover:underline"
+            className="text-purple-300 hover:text-pink-300 font-semibold transition"
           >
             Register
           </Link>
