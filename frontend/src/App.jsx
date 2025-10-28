@@ -1,6 +1,5 @@
-// src/App.js
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/LandingPage.jsx";
 import Events from "./pages/Events";
 import EventDetails from "./pages/EventDetails";
@@ -18,22 +17,20 @@ import SecurityPolicy from "./pages/SecurityPolicy.jsx";
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <Header />
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/events" element={<Events />} />
-          <Route path="/events/:id" element={<EventDetails />} />
-          <Route path="/booking/:id" element={<Booking />} />
-          <Route path="/success/:bookingId" element={<Success />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/my-bookings" element={<MyBookings />} />
-          <Route path="/security-policy" element={<SecurityPolicy />} />
-        </Routes>
-        <Footer />
-      </Router>
+      <Header />
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/events" element={<Events />} />
+        <Route path="/events/:id" element={<EventDetails />} />
+        <Route path="/booking/:id" element={<Booking />} />
+        <Route path="/success/:bookingId" element={<Success />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/my-bookings" element={<MyBookings />} />
+        <Route path="/security-policy" element={<SecurityPolicy />} />
+      </Routes>
+      <Footer />
     </AuthProvider>
   );
 }
