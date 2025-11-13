@@ -161,7 +161,7 @@ const Success = () => {
         </div>
 
         <p className="text-center text-gray-500 mt-8 italic">
-          “Thank you for booking with us — we can’t wait to see you at the event!”
+          Thank you for booking with us — we cant wait to see you at the event!
         </p>
       </motion.div>
 
@@ -170,7 +170,7 @@ const Success = () => {
         disabled={pdfLoading}
         whileHover={{ scale: 1.03 }}
         whileTap={{ scale: 0.97 }}
-        className={`block w-full max-w-2xl mx-auto mt-10 py-3 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-2 ${
+        className={` w-full max-w-2xl mx-auto mt-10 py-3 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-2 ${
           pdfLoading
             ? "bg-gray-300 text-gray-600 cursor-not-allowed"
             : "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md hover:shadow-xl"
