@@ -6,7 +6,7 @@ import { Ticket, Calendar, Users, Loader, Download } from "lucide-react";
 import { Link } from "react-router-dom";
 import api from "../utils/api";
 const MyBookings = () => {
-  const { user } = useContext(AuthContext);
+  // const { user } = useContext(AuthContext);
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
