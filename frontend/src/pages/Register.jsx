@@ -4,14 +4,7 @@ import { AuthContext } from "../context/AuthContext";
 import { motion } from "framer-motion";
 import { Mail, Lock, User, Eye, EyeOff, Loader2 } from "lucide-react";
 
-/**
- * Enhanced Register.jsx
- * - Floating labels
- * - Password visibility toggle + strength meter
- * - Terms checkbox
- * - Responsive split layout with promo panel on large screens
- * - Accessible attributes
- */
+
 
 const FloatingInput = ({
   id,
